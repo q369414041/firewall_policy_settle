@@ -37,12 +37,11 @@ def firewall_policy_clear(firewall_policy):
     firewall_policy = ''.join(firewall_policy)
     # 清洗数据使数据转化为规律列表
     firewall_policy = firewall_policy.replace('\nexit\nl2', '').replace('\nexit', '')
-    firewall_rule = firewall_policy.replace('\nrule', ' rule').replace('\n', '').replace('  ', ' ').replace('rule ','rule').split(" ")
-    print(firewall_rule)
+    firewall_rule = firewall_policy.replace('\nrule', ' rule').replace('\n', '').replace('  ', ' ').replace('rule ','rule').replace('disable',"").split(" ")
+    return firewall_rule
 
 def catch_file():
     for i in catch_folder():
-
         with open(f'{i}/show-configuration.log','r') as fp:
             ip_book = fp.read()
         if 'Version 4.0' in ip_book:
@@ -50,14 +49,16 @@ def catch_file():
             #firewall_policy = re.compile('rule id.*exit\nl2', re.S).findall(ip_book)
 
         elif 'no tcp-syn-check' in ip_book:
-            print(i)
-            firewall_policy = re.compile('rule id.*exit\nno', re.S).findall(ip_book)
-            firewall_policy_clear(firewall_policy)
+            # print(i)
+            # firewall_policy = re.compile('rule id.*exit\nno', re.S).findall(ip_book)
+            # firewall_policy_clear(firewall_policy)
+            continue
         else:
             #正则抓数据
             firewall_policy = re.compile('rule id.*exit\nl2',re.S).findall(ip_book)
-            firewall_policy_clear(firewall_policy)
-
+            fw_cl = firewall_policy_clear(firewall_policy)
+            fw_ip = i.replace('/Users/quanguangyuan/Desktop/1/','')
+            file_clear(fw_cl,n,fw_ip)
 
 def rule_id_judgment(rule_id,key):
     if rule_id.get(key) == None:
@@ -67,30 +68,30 @@ def rule_id_judgment(rule_id,key):
     else:
         return rule_id.get(key)
 
-def file_clear(n):
-    for i in catch_file():
+def file_clear(fw_cl,n,fw_ip):
+    for i in fw_cl:
         if i == 'ruleid':
             rule_id = {'rule id':[f'{n}']}
             n += 1
-        elif i in '12345678910111213141516171819202122232425262728293031323334353637383940' :
+        elif i.isdigit() is True:
             if n > 1:
                 for af in range(0, len(rule_value), 2):
                     rule_id_value.setdefault(rule_value[af], []).append(rule_value[af + 1])
                 rule_id.update(rule_id_value)
-                rule_sql = f'INSERT INTO TPL_filiale VALUES ("TPP-SHENZHEN-10.112.96.223",' \
+                rule_sql = f'INSERT INTO TPL_filiale VALUES ("{fw_ip}",' \
                            f'{"".join(rule_id.get("rule id"))},' \
                            f'{"".join(rule_id_judgment(rule_id,"action"))},' \
-                           f'{"".join(rule_id.get("src-zone"))},' \
-                           f'{"".join(rule_id.get("dst-zone"))},' \
-                           f'{"".join(rule_id.get("src-addr"))},' \
-                           f'{"".join(rule_id.get("dst-addr"))},' \
-                           f'{"".join(rule_id.get("service"))},' \
+                           f'{"".join(rule_id_judgment(rule_id,"src-zone"))},' \
+                           f'{"".join(rule_id_judgment(rule_id,"dst-zone"))},' \
+                           f'{"".join(rule_id_judgment(rule_id,"src-addr"))},' \
+                           f'{"".join(rule_id_judgment(rule_id,"dst-addr"))},' \
+                           f'{"".join(rule_id_judgment(rule_id,"service"))},' \
                            f'{"".join(rule_id_judgment(rule_id,"description"))},' \
-                           f'{"".join(rule_id_judgment(rule_id,"name"))})'
+                           f'{"".join(rule_id_judgment(rule_id,"name"))},' \
+                           f'{"".join(rule_id_judgment(rule_id,"log"))})'
                 use_mysql(rule_sql)
                 rule_id_value.clear()
                 rule_value.clear()
-                # print(firewall_rule_jason_true)
         else:
             rule_value.append(i)
 
