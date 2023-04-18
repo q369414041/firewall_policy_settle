@@ -37,7 +37,7 @@ def firewall_policy_clear(firewall_policy):
     firewall_policy = ''.join(firewall_policy)
     # 清洗数据使数据转化为规律列表
     firewall_policy = firewall_policy.replace('\nexit\nl2', '').replace('\nexit', '')
-    firewall_rule = firewall_policy.replace('\nrule', ' rule').replace('\n', '').replace('  ', ' ').replace('rule ','rule').replace('disable',"").split(" ")
+    firewall_rule = firewall_policy.replace('\nrule', ' rule').replace('\n', '').replace('  ', ' ').replace('rule ','rule').replace('disable ',"").split(" ")
     return firewall_rule
 
 def catch_file():
