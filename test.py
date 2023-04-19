@@ -36,7 +36,7 @@ def catch_folder():
 def firewall_policy_clear(firewall_policy):
     firewall_policy = ''.join(firewall_policy)
     # 清洗数据使数据转化为规律列表
-    firewall_policy = firewall_policy.replace('\nexit\nl2', '').replace('\nexit', '')
+    firewall_policy = firewall_policy.replace('\nexit\nl2', '').replace('\nexit\nno t', '').replace('\nexit', '')
     firewall_rule = firewall_policy.replace('\nrule', ' rule').replace('\n', '').replace('  ', ' ').replace('rule ','rule').replace('disable ',"").split(" ")
     return firewall_rule
 
@@ -49,21 +49,23 @@ def catch_file():
             #firewall_policy = re.compile('rule id.*exit\nl2', re.S).findall(ip_book)
 
         elif 'no tcp-syn-check' in ip_book:
-            # print(i)
-            # firewall_policy = re.compile('rule id.*exit\nno', re.S).findall(ip_book)
-            # firewall_policy_clear(firewall_policy)
-            continue
+            firewall_policy = re.compile('rule id.*exit\nno t', re.S).findall(ip_book)
+            fw_cl = firewall_policy_clear(firewall_policy)
+            fw_ip = i.replace('/Users/quanguangyuan/Desktop/1/', '')
+            print(fw_ip)
+            file_clear(fw_cl, n, fw_ip)
         else:
             #正则抓数据
             firewall_policy = re.compile('rule id.*exit\nl2',re.S).findall(ip_book)
             fw_cl = firewall_policy_clear(firewall_policy)
             fw_ip = i.replace('/Users/quanguangyuan/Desktop/1/','')
+            print(fw_ip)
             file_clear(fw_cl,n,fw_ip)
-    # with open('/Users/quanguangyuan/Desktop/1/0701420150016633-10.103.96.222-202303271119/show-configuration.log') as fp:
+    # with open('/Users/quanguangyuan/Desktop/1/0701440140012024-10.108.7.223-202303271125/show-configuration.log') as fp:
     #     ip_book = fp.read()
-    # firewall_policy = re.compile('rule id.*exit\nl2', re.S).findall(ip_book)
+    # firewall_policy = re.compile('rule id.*exit\nno', re.S).findall(ip_book)
     # fw_cl = firewall_policy_clear(firewall_policy)
-    # fw_ip = '0701420150016633-10.103.96.222-202303271119'
+    # fw_ip = '0701440140012024-10.108.7.223-202303271125'
     # file_clear(fw_cl,n,fw_ip)
 
 def rule_id_judgment(rule_id,key):
