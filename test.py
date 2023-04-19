@@ -59,7 +59,12 @@ def catch_file():
             fw_cl = firewall_policy_clear(firewall_policy)
             fw_ip = i.replace('/Users/quanguangyuan/Desktop/1/','')
             file_clear(fw_cl,n,fw_ip)
-
+    # with open('/Users/quanguangyuan/Desktop/1/0701420150016633-10.103.96.222-202303271119/show-configuration.log') as fp:
+    #     ip_book = fp.read()
+    # firewall_policy = re.compile('rule id.*exit\nl2', re.S).findall(ip_book)
+    # fw_cl = firewall_policy_clear(firewall_policy)
+    # fw_ip = '0701420150016633-10.103.96.222-202303271119'
+    # file_clear(fw_cl,n,fw_ip)
 
 def rule_id_judgment(rule_id,key):
     if rule_id.get(key) == None:
@@ -83,7 +88,7 @@ def sql_statement(rule_id,fw_ip):
                f'{"".join(rule_id_judgment(rule_id, "service"))},' \
                f'{"".join(rule_id_judgment(rule_id, "description"))},' \
                f'{"".join(rule_id_judgment(rule_id, "name"))},' \
-               f'{"".join(rule_id_judgment(rule_id, "log"))})'
+               f'"{"".join(rule_id_judgment(rule_id,"log"))}")'
     use_mysql(rule_sql)
     rule_id_value.clear()
     rule_value.clear()
