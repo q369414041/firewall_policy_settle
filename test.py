@@ -60,6 +60,7 @@ def catch_file():
             fw_ip = i.replace('/Users/quanguangyuan/Desktop/1/','')
             file_clear(fw_cl,n,fw_ip)
 
+
 def rule_id_judgment(rule_id,key):
     if rule_id.get(key) == None:
         return ['NUll']
@@ -68,32 +69,38 @@ def rule_id_judgment(rule_id,key):
     else:
         return rule_id.get(key)
 
+def sql_statement(rule_id,fw_ip):
+    for af in range(0, len(rule_value), 2):
+        rule_id_value.setdefault(rule_value[af], []).append(rule_value[af + 1])
+    rule_id.update(rule_id_value)
+    rule_sql = f'INSERT INTO TPL_filiale VALUES ("{fw_ip}",' \
+               f'{"".join(rule_id.get("rule id"))},' \
+               f'{"".join(rule_id_judgment(rule_id, "action"))},' \
+               f'{"".join(rule_id_judgment(rule_id, "src-zone"))},' \
+               f'{"".join(rule_id_judgment(rule_id, "dst-zone"))},' \
+               f'{"".join(rule_id_judgment(rule_id, "src-addr"))},' \
+               f'{"".join(rule_id_judgment(rule_id, "dst-addr"))},' \
+               f'{"".join(rule_id_judgment(rule_id, "service"))},' \
+               f'{"".join(rule_id_judgment(rule_id, "description"))},' \
+               f'{"".join(rule_id_judgment(rule_id, "name"))},' \
+               f'{"".join(rule_id_judgment(rule_id, "log"))})'
+    use_mysql(rule_sql)
+    rule_id_value.clear()
+    rule_value.clear()
+
 def file_clear(fw_cl,n,fw_ip):
-    for i in fw_cl:
+    for v, i in enumerate(fw_cl):
         if i == 'ruleid':
             rule_id = {'rule id':[f'{n}']}
             n += 1
         elif i.isdigit() is True:
             if n > 1:
-                for af in range(0, len(rule_value), 2):
-                    rule_id_value.setdefault(rule_value[af], []).append(rule_value[af + 1])
-                rule_id.update(rule_id_value)
-                rule_sql = f'INSERT INTO TPL_filiale VALUES ("{fw_ip}",' \
-                           f'{"".join(rule_id.get("rule id"))},' \
-                           f'{"".join(rule_id_judgment(rule_id,"action"))},' \
-                           f'{"".join(rule_id_judgment(rule_id,"src-zone"))},' \
-                           f'{"".join(rule_id_judgment(rule_id,"dst-zone"))},' \
-                           f'{"".join(rule_id_judgment(rule_id,"src-addr"))},' \
-                           f'{"".join(rule_id_judgment(rule_id,"dst-addr"))},' \
-                           f'{"".join(rule_id_judgment(rule_id,"service"))},' \
-                           f'{"".join(rule_id_judgment(rule_id,"description"))},' \
-                           f'{"".join(rule_id_judgment(rule_id,"name"))},' \
-                           f'{"".join(rule_id_judgment(rule_id,"log"))})'
-                use_mysql(rule_sql)
-                rule_id_value.clear()
-                rule_value.clear()
+                sql_statement(rule_id,fw_ip)
+        elif v != len(fw_cl)-1:
+            rule_value.append(i)
         else:
             rule_value.append(i)
-
+            rule_id = {'rule id': [f'{n}']}
+            sql_statement(rule_id,fw_ip)
 if __name__ == '__main__':
     catch_file()
